@@ -1,4 +1,4 @@
-token = 'MTExMTMyMTEzNTQ2MDY2MzM3Nw.GDs_oc.D9ev1np_kj-llyVNHC53_Zb-Plh3M7ofv0X4eA'
+token = 'your token'
 
 bio_text = 'Я Хаясе Нагаторо, меня написал один уебок и теперь издевается надо мной. \
 https://i.pinimg.com/originals/c7/aa/de/c7aadeb44b7685cd7f959d8e0f6aa3ce.gif'
