@@ -12,7 +12,7 @@ TOKEN = config.token
 bot = commands.Bot(command_prefix='!', intents=intents)
 bot.remove_command("help")
 client = discord.Client(intents=intents)
-status = cycle(['Python', 'доту с онлином ', 'Feel so alone in bedroom'])
+status = cycle(['Python', 'доту с онлином ', 'Feel so alone in bedroom', 'Ю Чэгён няшка <3'])
 app = Flask('')
 
 
