@@ -5,7 +5,6 @@ import discord
 from discord.ext import commands
 import config
 
-
 intents = discord.Intents.default()
 intents.message_content = True
 TOKEN = config.token
@@ -21,19 +20,30 @@ async def on_ready():
     print("Your bot is ready")
 
 
-@tasks.loop(seconds=60)
+@tasks.loop(seconds=10)
 async def change_status():
     await bot.change_presence(activity=discord.Game(next(status)))
 
 
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, discord.ext.commands.errors.CommandNotFound):
+        error = discord.Embed(title=f"Ошибка!",
+                              description="Кажется что-то не так. Провертьте корректность ввода команды.")
+        await ctx.send(embed=error)
+
+
 @bot.command()
 async def bio(ctx):
-    await ctx.send(config.bio_text)
+    bio = discord.Embed(title=f"Привет!", description=f"Я Хаясе Нагаторо, меня написал один "
+                                                      f"уебок и теперь издевается надо мной.")
+    await ctx.send(embed=bio)
 
 
 @bot.command()
 async def roll(ctx, a: int, b: int):
-    await ctx.send(random.randrange(a, b))
+    rolled = discord.Embed(title=f"Готово!", description=f"{ctx.author.mention}, ваше число: {random.randrange(a, b)}")
+    await ctx.send(embed=rolled)
 
 
 @bot.command()
@@ -51,7 +61,7 @@ async def kick(ctx, user: discord.Member):
 
 @bot.command(description="Mutes the specified user.")
 @commands.has_permissions(manage_messages=True)
-async def mute(ctx, member: discord.Member, *, reason=None):
+async def mute(ctx, member: discord.Member):
     guild = ctx.guild
     mutedRole = discord.utils.get(guild.roles, name="muted")
     muted = discord.Embed(title=f"Готово!", description=f"{member.mention} был замьючен!")
@@ -65,7 +75,6 @@ async def mute(ctx, member: discord.Member, *, reason=None):
                                           read_messages=False)
 
     await member.remove_roles(UserRole)
-    await member.add_roles(mutedRole, reason=reason)
     await ctx.send(embed=muted)
 
 
