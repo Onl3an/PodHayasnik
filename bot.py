@@ -1,4 +1,5 @@
 import random
+import subprocess
 from itertools import cycle
 import discord
 import config
@@ -6,7 +7,6 @@ import os
 from discord.ext import commands
 from discord.ext import commands, tasks
 import sys
-import asyncio
 
 prefixintial = open("prefix.txt", "r").readline(1)
 prefix = prefixintial
@@ -22,7 +22,7 @@ status = cycle(['Python', 'доту с онлином', 'feel so alone in bedroo
 @bot.event
 async def on_ready():
     change_status.start()
-    print("Your bot is ready")
+    print("Бот готов к работе!")
 
 
 @tasks.loop(seconds=10)
@@ -33,42 +33,35 @@ async def change_status():
 @bot.event
 async def on_command_error(ctx, err):
     if isinstance(err, discord.ext.commands.errors.CommandNotFound):
-        await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"Команда не найдена!"))
+        await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"Команда **не найдена!**"))
 
 
     elif isinstance(err, discord.ext.commands.errors.BotMissingPermissions):
         await ctx.send(
             embed=discord.Embed(title=f"Ошибка!",
-                                description=f"У бота отсутствуют права: {' '.join(err.missing_perms)}\nВыдайте их ему для полного функционирования бота"))
+                                description=f"У бота **отсутствуют права.** Выдайте их ему для полного функционирования бота"))
 
 
     elif isinstance(err, discord.ext.commands.errors.MissingPermissions):
-        await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"У вас недостаточно прав для запуска "
+        await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"У вас **недостаточно прав** для запуска "
                                                                          f"этой команды!"))
 
 
     elif isinstance(err, discord.ext.commands.errors.UserInputError):
         await ctx.send(embed=discord.Embed(title=f"Ошибка!",
-                                           description=f"Правильное использование команды {ctx.command}({ctx.command.brief}): {ctx.command.usage}"))
+                                           description=f"**Правильное использование команды {ctx.command}{ctx.command.brief}):** {ctx.command.usage}"))
 
 
     elif isinstance(err, commands.CommandOnCooldown):
         await ctx.send(embed=discord.Embed(
-            description=f"У вас еще не прошел кулдаун на команду {ctx.command}!\nПодождите еще {err.retry_after:.2f}"))
+            description=f"У вас еще **не прошел кулдаун** на команду {ctx.command}!\nПодождите еще {err.retry_after:.2f}"))
 
 
     else:
         await ctx.send(embed=discord.Embed(title=f"Ошибка!",
-                                           description=f"Произошла неизвестная ошибка: {err}\nПожалуйста, "
-                                                       f"свяжитесь с разработчиками для исправления этой "
+                                           description=f"**Произошла неизвестная ошибка:** {err}\nПожалуйста, "
+                                                       f"__свяжитесь с разработчиками__ для исправления этой "
                                                        f"ошибки"))
-
-
-@bot.command()
-async def bio(ctx):
-    bio = discord.Embed(title=f"Привет!", description=f"Я Хаясе Нагаторо, меня написал один "
-                                                      f"уебок и теперь издевается надо мной.")
-    await ctx.send(embed=bio)
 
 
 @bot.command()
@@ -84,18 +77,19 @@ async def help(ctx):
 
 
 @bot.command()
+@commands.has_permissions(manage_messages=True)
 async def kick(ctx, user: discord.Member):
     await user.kick()
-    kick = discord.Embed(title=f"Готово!", description=f"Выгнан {user.name}. Выгнал: {ctx.author.mention}")
+    kick = discord.Embed(title=f"Готово!", description=f"**Выгнан(а)** {user.name}. **Выгнал:** {ctx.author.mention}")
     await ctx.send(embed=kick)
 
 
-@bot.command(description="Mutes the specified user.")
+@bot.command()
 @commands.has_permissions(manage_messages=True)
 async def mute(ctx, member: discord.Member):
     guild = ctx.guild
     mutedRole = discord.utils.get(guild.roles, name="muted")
-    muted = discord.Embed(title=f"Готово!", description=f"{member.mention} был замьючен!")
+    muted = discord.Embed(title=f"Готово!", description=f"{member.mention} был(а) замьючен(а)!")
     UserRole = discord.utils.get(ctx.guild.roles, name="user")
 
     if not mutedRole:
@@ -109,18 +103,19 @@ async def mute(ctx, member: discord.Member):
     await ctx.send(embed=muted)
 
 
-@bot.command(description="Unmutes a specified user.")
+@bot.command()
 @commands.has_permissions(manage_messages=True)
 async def unmute(ctx, member: discord.Member):
     mutedRole = discord.utils.get(ctx.guild.roles, name="muted")
     await member.remove_roles(mutedRole)
     UserRole = discord.utils.get(ctx.guild.roles, name="user")
     await member.add_roles(UserRole)
-    unmuted = discord.Embed(title=f"Готово!", description=f"{member.mention} был размьючен!")
+    unmuted = discord.Embed(title=f"Готово!", description=f"{member.mention} был(а) размьючен(а)!")
     await ctx.send(embed=unmuted)
 
 
 @bot.command()
+@commands.has_permissions(manage_messages=True)
 async def give_role(ctx, member: discord.Member, *, role: discord.Role):
     await member.add_roles(role)
     gived = discord.Embed(title=f"Готово!", description=f"Выдана роль {role} для {member.mention}.")
@@ -128,6 +123,7 @@ async def give_role(ctx, member: discord.Member, *, role: discord.Role):
 
 
 @bot.command()
+@commands.has_permissions(manage_messages=True)
 async def remove_role(ctx, member: discord.Member, *, role: discord.Role):
     await member.remove_roles(role)
     removed = discord.Embed(title=f"Готово!", description=f"Снята роль {role} с {member.mention}.")
@@ -142,17 +138,19 @@ async def clear(ctx, amount: int):
 
 
 @bot.command()
+@commands.has_permissions(manage_messages=True)
 async def ban(ctx, member: discord.Member):
     await member.ban()
-    banned = discord.Embed(title=f"Готово!", description=f"{member} был забанен на сервере.")
+    banned = discord.Embed(title=f"Готово!", description=f"{member} был **забанен** на сервере.")
     await ctx.send(embed=banned)
 
 
 @bot.command()
+@commands.has_permissions(manage_messages=True)
 async def unban(ctx, id: int):
     user = await bot.fetch_user(id)
     await ctx.guild.unban(user)
-    unbanned = discord.Embed(title=f"Готово!", description=f"{user} был разбанен на сервере.")
+    unbanned = discord.Embed(title=f"Готово!", description=f"{user} был **разбанен** на сервере.")
     await ctx.send(embed=unbanned)
 
 
@@ -167,26 +165,30 @@ async def profile(ctx):
     await ctx.send(embed=embed)
 
 
-@bot.command(aliases=["prefix"])
+@bot.command()
+@commands.has_permissions(manage_messages=True)
 async def set_prefix(ctx, *, prefixsetup=None):
     if prefixsetup is None:
-        massnoprefix = await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"Вы не указали префикс!"))
+        await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"Вы не указали префикс!"))
 
     else:
         openPrefixFile = open("prefix.txt", "w")
-        writingprefix = openPrefixFile.write(prefixsetup)
-        await ctx.send(f"Префикс изменён на > {prefixsetup} < Что бы применить видите {prefixintial}reload")
+        openPrefixFile.write(prefixsetup)
+        await ctx.send(embed=discord.Embed(title="Готово!", description=f"Префикс изменён на > ``{prefixsetup}`` "
+                                                                        f"< Что бы применить видите {prefixintial}restart"))
+
+
+def restart_bot():
+    subprocess.Popen([sys.executable, 'bot.py'], creationflags=subprocess.CREATE_NEW_CONSOLE)
+    sys.exit()
 
 
 @bot.command()
 async def reload(ctx):
-    embed = discord.Embed(title="Перезагрузка", description=f"Начинаю перезагрузку...")
-    await ctx.send(embed=embed)
-    await bot.close()
-    await asyncio.sleep(3)
-    await bot.connect()
-    embed = discord.Embed(title="Готово!", description=f"Бот успешно перезагружен")
-    await ctx.send(embed=embed)
-
+    embed1 = discord.Embed(title="Готово!", description=f"Перезагружаюсь...")
+    await ctx.send(embed=embed1)
+    restart_bot()
+    embed2 = discord.Embed(title="Готово!", description=f"Бот успешно перезагружен")
+    await ctx.send(embed=embed2)
 
 bot.run(TOKEN)
