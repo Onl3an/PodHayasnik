@@ -4,7 +4,7 @@ from discord.ext import tasks
 import discord
 from discord.ext import commands
 import config
-from flask import Flask
+
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -12,8 +12,7 @@ TOKEN = config.token
 bot = commands.Bot(command_prefix='!', intents=intents)
 bot.remove_command("help")
 client = discord.Client(intents=intents)
-status = cycle(['Python', 'доту с онлином ', 'Feel so alone in bedroom', 'Ю Чэгён няшка <3'])
-app = Flask('')
+status = cycle(['Python', 'доту с онлином', 'feel so alone in bedroom', 'Ю Чэгён няшка <3', 'аниме!!!'])
 
 
 @bot.event
@@ -22,37 +21,32 @@ async def on_ready():
     print("Your bot is ready")
 
 
-@tasks.loop(seconds=10)
+@tasks.loop(seconds=60)
 async def change_status():
     await bot.change_presence(activity=discord.Game(next(status)))
 
 
-@bot.command(pass_context=True)
-async def repeat(ctx, arg):
-    await ctx.reply(arg)
-
-
 @bot.command()
 async def bio(ctx):
-    await ctx.reply(config.bio_text)
+    await ctx.send(config.bio_text)
 
 
 @bot.command()
 async def roll(ctx, a: int, b: int):
-    await ctx.reply(random.randrange(a, b))
+    await ctx.send(random.randrange(a, b))
 
 
 @bot.command()
 async def help(ctx):
     help = discord.Embed(title=f"Список команд:", description=config.list_of_commands)
-    await ctx.reply(embed=help)
+    await ctx.send(embed=help)
 
 
 @bot.command()
 async def kick(ctx, user: discord.Member):
     await user.kick()
     kick = discord.Embed(title=f"Готово!", description=f"Выгнан {user.name}. Выгнал: {ctx.author.mention}")
-    await ctx.reply(embed=kick)
+    await ctx.send(embed=kick)
 
 
 @bot.command(description="Mutes the specified user.")
@@ -72,7 +66,7 @@ async def mute(ctx, member: discord.Member, *, reason=None):
 
     await member.remove_roles(UserRole)
     await member.add_roles(mutedRole, reason=reason)
-    await ctx.reply(embed=muted)
+    await ctx.send(embed=muted)
 
 
 @bot.command(description="Unmutes a specified user.")
@@ -83,21 +77,21 @@ async def unmute(ctx, member: discord.Member):
     UserRole = discord.utils.get(ctx.guild.roles, name="user")
     await member.add_roles(UserRole)
     unmuted = discord.Embed(title=f"Готово!", description=f"{member.mention} был размьючен!")
-    await ctx.reply(embed=unmuted)
+    await ctx.send(embed=unmuted)
 
 
 @bot.command()
 async def give_role(ctx, member: discord.Member, *, role: discord.Role):
     await member.add_roles(role)
     gived = discord.Embed(title=f"Готово!", description=f"Выдана роль {role} для {member.mention}.")
-    await ctx.reply(embed=gived)
+    await ctx.send(embed=gived)
 
 
 @bot.command()
 async def remove_role(ctx, member: discord.Member, *, role: discord.Role):
     await member.remove_roles(role)
     removed = discord.Embed(title=f"Готово!", description=f"Снята роль {role} с {member.mention}.")
-    await ctx.reply(embed=removed)
+    await ctx.send(embed=removed)
 
 
 @bot.command()
@@ -115,18 +109,10 @@ async def ban(ctx, member: discord.Member):
 
 
 @bot.command()
-async def unban(ctx, *, member):
-    banned_users = ctx.guild.bans()
-    member_name, member_discriminator = member.split('#')
-
-    for ban_entry in banned_users:
-        user = ban_entry.user
-
-        if (user.name, user.discriminator) == (member_name, member_discriminator):
-            await ctx.guild.unban(user)
-            await ctx.send(f'{user} был разбанен с сервера.')
-            return
-    unbanned = discord.Embed(title=f"Готово!", description=f"{member} был разбанен на сервере.")
+async def unban(ctx, id: int):
+    user = await bot.fetch_user(id)
+    await ctx.guild.unban(user)
+    unbanned = discord.Embed(title=f"Готово!", description=f"{user} был разбанен на сервере.")
     await ctx.send(embed=unbanned)
 
 
@@ -138,7 +124,7 @@ async def profile(ctx):
     embed.add_field(name="ID", value=member.id, inline=True)
     embed.add_field(name="Статус", value=member.status, inline=True)
     embed.set_thumbnail(url=member.avatar)
-    await ctx.reply(embed=embed)
+    await ctx.send(embed=embed)
 
 
 bot.run(TOKEN)
