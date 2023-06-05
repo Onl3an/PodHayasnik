@@ -175,7 +175,7 @@ async def set_prefix(ctx, *, prefixsetup=None):
         openPrefixFile = open("prefix.txt", "w")
         openPrefixFile.write(prefixsetup)
         await ctx.send(embed=discord.Embed(title="Готово!", description=f"Префикс изменён на > ``{prefixsetup}`` "
-                                                                        f"< Что бы применить видите {prefixintial}restart"))
+                                                                        f"< Что бы применить видите {prefixintial}reload"))
 
 
 def restart_bot():
