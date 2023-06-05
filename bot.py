@@ -1,14 +1,19 @@
 import random
 from itertools import cycle
-from discord.ext import tasks
 import discord
-from discord.ext import commands
 import config
+import os
+from discord.ext import commands
+from discord.ext import commands, tasks
+import sys
+import asyncio
 
+prefixintial = open("prefix.txt", "r").readline(1)
+prefix = prefixintial
 intents = discord.Intents.default()
 intents.message_content = True
 TOKEN = config.token
-bot = commands.Bot(command_prefix='!', intents=intents)
+bot = commands.Bot(command_prefix=prefixintial, intents=intents)
 bot.remove_command("help")
 client = discord.Client(intents=intents)
 status = cycle(['Python', 'доту с онлином', 'feel so alone in bedroom', 'Ю Чэгён няшка <3', 'аниме!!!'])
@@ -26,11 +31,37 @@ async def change_status():
 
 
 @bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, discord.ext.commands.errors.CommandNotFound):
-        error = discord.Embed(title=f"Ошибка!",
-                              description="Кажется что-то не так. Провертьте корректность ввода команды.")
-        await ctx.send(embed=error)
+async def on_command_error(ctx, err):
+    if isinstance(err, discord.ext.commands.errors.CommandNotFound):
+        await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"Команда не найдена!"))
+
+
+    elif isinstance(err, discord.ext.commands.errors.BotMissingPermissions):
+        await ctx.send(
+            embed=discord.Embed(title=f"Ошибка!",
+                                description=f"У бота отсутствуют права: {' '.join(err.missing_perms)}\nВыдайте их ему для полного функционирования бота"))
+
+
+    elif isinstance(err, discord.ext.commands.errors.MissingPermissions):
+        await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"У вас недостаточно прав для запуска "
+                                                                         f"этой команды!"))
+
+
+    elif isinstance(err, discord.ext.commands.errors.UserInputError):
+        await ctx.send(embed=discord.Embed(title=f"Ошибка!",
+                                           description=f"Правильное использование команды {ctx.command}({ctx.command.brief}): {ctx.command.usage}"))
+
+
+    elif isinstance(err, commands.CommandOnCooldown):
+        await ctx.send(embed=discord.Embed(
+            description=f"У вас еще не прошел кулдаун на команду {ctx.command}!\nПодождите еще {err.retry_after:.2f}"))
+
+
+    else:
+        await ctx.send(embed=discord.Embed(title=f"Ошибка!",
+                                           description=f"Произошла неизвестная ошибка: {err}\nПожалуйста, "
+                                                       f"свяжитесь с разработчиками для исправления этой "
+                                                       f"ошибки"))
 
 
 @bot.command()
@@ -128,11 +159,33 @@ async def unban(ctx, id: int):
 @bot.command()
 async def profile(ctx):
     member = ctx.author
-    embed = discord.Embed(title="Профиль пользователя", description=member.mention)
+    embed = discord.Embed(title="Профиль пользователя:")
     embed.add_field(name="Имя", value=member.name, inline=True)
     embed.add_field(name="ID", value=member.id, inline=True)
     embed.add_field(name="Статус", value=member.status, inline=True)
     embed.set_thumbnail(url=member.avatar)
+    await ctx.send(embed=embed)
+
+
+@bot.command(aliases=["prefix"])
+async def set_prefix(ctx, *, prefixsetup=None):
+    if prefixsetup is None:
+        massnoprefix = await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"Вы не указали префикс!"))
+
+    else:
+        openPrefixFile = open("prefix.txt", "w")
+        writingprefix = openPrefixFile.write(prefixsetup)
+        await ctx.send(f"Префикс изменён на > {prefixsetup} < Что бы применить видите {prefixintial}reload")
+
+
+@bot.command()
+async def reload(ctx):
+    embed = discord.Embed(title="Перезагрузка", description=f"Начинаю перезагрузку...")
+    await ctx.send(embed=embed)
+    await bot.close()
+    await asyncio.sleep(3)
+    await bot.connect()
+    embed = discord.Embed(title="Готово!", description=f"Бот успешно перезагружен")
     await ctx.send(embed=embed)
 
 
