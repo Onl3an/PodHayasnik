@@ -31,43 +31,45 @@ async def change_status():
 @bot.event
 async def on_command_error(ctx, err):
     if isinstance(err, discord.ext.commands.errors.CommandNotFound):
-        await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"Команда **не найден!**"))
+        await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"Команда **не найден!**", color=0xFF0000))
 
     elif isinstance(err, discord.ext.commands.errors.MissingPermissions):
         await ctx.send(embed=discord.Embed(title=f"Ошибка!",
-                                           description=f"У вас **недостаточно прав** для запуска этой команды!"))
+                                           description=f"У вас **недостаточно прав** для запуска этой команды!",
+                                           color=0xFF0000))
 
     elif isinstance(err, discord.ext.commands.errors.UserInputError):
         await ctx.send(embed=discord.Embed(title=f"Ошибка!",
                                            description=f"Правильное использование команды **{ctx.command}**"
-                                                       f"({ctx.command.brief}): `{ctx.command.usage}`"))
+                                                       f"({ctx.command.brief}): `{ctx.command.usage}`", color=0xFF0000))
 
     elif isinstance(err, discord.ext.commands.errors.BadArgument):
         await ctx.send(embed=discord.Embed(title=f"Ошибка!",
                                            description=f"Правильное использование команды **{ctx.command}**"
-                                                       f"({ctx.command.brief}): `{ctx.command.usage}`"))
+                                                       f"({ctx.command.brief}): `{ctx.command.usage}`", color=0xFF0000))
 
     elif isinstance(err, discord.ext.commands.CommandOnCooldown):
         await ctx.send(embed=discord.Embed(title=f"Ошибка!",
                                            description=f"У вас еще **не прошел кулдаун** на команду {ctx.command}!\n"
-                                                       f"Подождите еще {err.retry_after:.2f}"))
+                                                       f"Подождите еще {err.retry_after:.2f}", color=0xFF0000))
 
     else:
         await ctx.send(embed=discord.Embed(title=f"Ошибка!",
                                            description=f"Произошла **неизвестная ошибка:** `{err}`\n"
                                                        f"Пожалуйста, свяжитесь с разработчиками для "
-                                                       f"исправления этой ошибки"))
+                                                       f"исправления этой ошибки", color=0xFF0000))
 
 
 @bot.command(name="roll", brief="Выдает случайное число в диапазоне", usage="roll <first_num> <second_num>")
 async def roll(ctx, a: int, b: int):
-    rolled = discord.Embed(title=f"Готово!", description=f"{ctx.author.mention}, ваше число: {random.randrange(a, b)}")
+    rolled = discord.Embed(title=f"Готово!", description=f"{ctx.author.mention}, ваше число: {random.randrange(a, b)}",
+                           color=0x008000)
     await ctx.send(embed=rolled)
 
 
 @bot.command(name="help", brief="Показать список команд", usage="help")
 async def help(ctx):
-    helped = discord.Embed(title=f"Список команд:", description=config.list_of_commands)
+    helped = discord.Embed(title=f"Список команд:", description=config.list_of_commands, color=0x008000)
     await ctx.send(embed=helped)
 
 
@@ -75,7 +77,7 @@ async def help(ctx):
 @commands.has_permissions(administrator=True)
 async def kick(ctx, user: discord.Member):
     await user.kick()
-    kicked = discord.Embed(title=f"Готово!", description=f"**Выгнан(а)** {user.name}. **Выгнал:** {ctx.author.mention}")
+    kicked = discord.Embed(title=f"Готово!", description=f"**Выгнан(а)** {user.name}. **Выгнал:** {ctx.author.mention}", color=0x008000)
     await ctx.send(embed=kicked)
 
 
@@ -84,7 +86,7 @@ async def kick(ctx, user: discord.Member):
 async def mute(ctx, member: discord.Member):
     role = discord.utils.get(ctx.guild.roles, name='muted')
     await member.add_roles(role)
-    muted = discord.Embed(title="Готово!", description=f"{member.mention} был(а) замьючен(а)!")
+    muted = discord.Embed(title="Готово!", description=f"{member.mention} был(а) замьючен(а)!", color=0x008000)
     await ctx.send(embed=muted)
 
 
@@ -93,7 +95,7 @@ async def mute(ctx, member: discord.Member):
 async def unmute(ctx, member: discord.Member):
     mutedRole = discord.utils.get(ctx.guild.roles, name="muted")
     await member.remove_roles(mutedRole)
-    unmuted = discord.Embed(title=f"Готово!", description=f"{member.mention} был(а) размьючен(а)!")
+    unmuted = discord.Embed(title=f"Готово!", description=f"{member.mention} был(а) размьючен(а)!", color=0x008000)
     await ctx.send(embed=unmuted)
 
 
@@ -101,7 +103,7 @@ async def unmute(ctx, member: discord.Member):
 @commands.has_permissions(administrator=True)
 async def give_role(ctx, member: discord.Member, *, role: discord.Role):
     await member.add_roles(role)
-    gived = discord.Embed(title=f"Готово!", description=f"Выдана роль {role} для {member.mention}.")
+    gived = discord.Embed(title=f"Готово!", description=f"Выдана роль {role} для {member.mention}.", color=0x008000)
     await ctx.send(embed=gived)
 
 
@@ -109,14 +111,14 @@ async def give_role(ctx, member: discord.Member, *, role: discord.Role):
 @commands.has_permissions(administrator=True)
 async def remove_role(ctx, member: discord.Member, *, role: discord.Role):
     await member.remove_roles(role)
-    removed = discord.Embed(title=f"Готово!", description=f"Снята роль {role} с {member.mention}.")
+    removed = discord.Embed(title=f"Готово!", description=f"Снята роль {role} с {member.mention}.", color=0x008000)
     await ctx.send(embed=removed)
 
 
 @bot.command(name="clear", brief="Очистить чат от сообщений.", usage="clear <amount>")
 @commands.has_permissions(administrator=True)
 async def clear(ctx, amount: int):
-    cleared = discord.Embed(title=f"Готово!", description=f"{ctx.author.mention} очистил(а) **{amount}** сообщений.")
+    cleared = discord.Embed(title=f"Готово!", description=f"{ctx.author.mention} очистил(а) **{amount}** сообщений.", color=0x008000)
     await ctx.channel.purge(limit=amount)
     await ctx.send(embed=cleared)
 
@@ -125,7 +127,7 @@ async def clear(ctx, amount: int):
 @commands.has_permissions(administrator=True)
 async def ban(ctx, member: discord.Member):
     await member.ban()
-    banned = discord.Embed(title=f"Готово!", description=f"{member} был **забанен(а)** на сервере.")
+    banned = discord.Embed(title=f"Готово!", description=f"{member} был **забанен(а)** на сервере.", color=0x008000)
     await ctx.send(embed=banned)
 
 
@@ -134,14 +136,14 @@ async def ban(ctx, member: discord.Member):
 async def unban(ctx, id: int):
     user = await bot.fetch_user(id)
     await ctx.guild.unban(user)
-    unbanned = discord.Embed(title=f"Готово!", description=f"{user} был **разбанен(а)** на сервере.")
+    unbanned = discord.Embed(title=f"Готово!", description=f"{user} был **разбанен(а)** на сервере.", color=0x008000)
     await ctx.send(embed=unbanned)
 
 
 @bot.command(name="profile", brief="Показать профиль пользователя", usage="give_role <@user>")
 async def profile(ctx):
     member = ctx.author
-    embed = discord.Embed(title="Профиль пользователя:")
+    embed = discord.Embed(title="Профиль пользователя:", color=0x008000)
     embed.add_field(name="Имя", value=member.name, inline=True)
     embed.add_field(name="ID", value=member.id, inline=True)
     embed.add_field(name="Статус", value=member.status, inline=True)
@@ -153,14 +155,14 @@ async def profile(ctx):
 @commands.has_permissions(administrator=True)
 async def set_prefix(ctx, *, prefixsetup=None):
     if prefixsetup is None:
-        await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"Вы не указали префикс!"))
+        await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"Вы не указали префикс!", color=0x008000))
 
     else:
         openPrefixFile = open("prefix.txt", "w")
         openPrefixFile.write(prefixsetup)
         await ctx.send(embed=discord.Embed(title="Готово!", description=f"Префикс изменён на > ``{prefixsetup}`` "
                                                                         f"< Что бы применить видите "
-                                                                        f"{prefixintial}restart"))
+                                                                        f"{prefixintial}restart", color=0x008000))
 
 
 def restart_bot():
@@ -171,7 +173,7 @@ def restart_bot():
 @bot.command(name="restart", brief="Перезапустить бота", usage="restart")
 @commands.has_permissions(administrator=True)
 async def restart(ctx):
-    embed1 = discord.Embed(title="Готово!", description=f"Перезагружаюсь...")
+    embed1 = discord.Embed(title="Готово!", description=f"Перезагружаюсь...", color=0x008000)
     await ctx.send(embed=embed1)
     restart_bot()
 
