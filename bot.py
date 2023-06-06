@@ -28,33 +28,33 @@ async def change_status():
     await bot.change_presence(activity=discord.Game(next(status)))
 
 
-@client.event
+@bot.event
 async def on_command_error(ctx, err):
     if isinstance(err, discord.ext.commands.errors.CommandNotFound):
-        await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"Команда не найдена!"))
+        await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"Команда **не найден!**"))
 
     elif isinstance(err, discord.ext.commands.errors.MissingPermissions):
         await ctx.send(embed=discord.Embed(title=f"Ошибка!",
-                                           description=f"У вас недостаточно прав для запуска этой команды!"))
+                                           description=f"У вас **недостаточно прав** для запуска этой команды!"))
 
     elif isinstance(err, discord.ext.commands.errors.UserInputError):
         await ctx.send(embed=discord.Embed(title=f"Ошибка!",
-                                           description=f"Правильное использование команды {ctx.command}"
+                                           description=f"Правильное использование команды **{ctx.command}**"
                                                        f"({ctx.command.brief}): `{ctx.command.usage}`"))
 
     elif isinstance(err, discord.ext.commands.errors.BadArgument):
         await ctx.send(embed=discord.Embed(title=f"Ошибка!",
-                                           description=f"Правильное использование команды {ctx.command}"
+                                           description=f"Правильное использование команды **{ctx.command}**"
                                                        f"({ctx.command.brief}): `{ctx.command.usage}`"))
 
     elif isinstance(err, discord.ext.commands.CommandOnCooldown):
         await ctx.send(embed=discord.Embed(title=f"Ошибка!",
-                                           description=f"У вас еще не прошел кулдаун на команду {ctx.command}!\n"
+                                           description=f"У вас еще **не прошел кулдаун** на команду {ctx.command}!\n"
                                                        f"Подождите еще {err.retry_after:.2f}"))
 
     else:
         await ctx.send(embed=discord.Embed(title=f"Ошибка!",
-                                           description=f"Произошла неизвестная ошибка: `{err}`\n"
+                                           description=f"Произошла **неизвестная ошибка:** `{err}`\n"
                                                        f"Пожалуйста, свяжитесь с разработчиками для "
                                                        f"исправления этой ошибки"))
 
