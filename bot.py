@@ -72,53 +72,41 @@ async def help(ctx):
 
 
 @bot.command(name="kick", brief="Выгнать пользователя с сервера", usage="kick <@user>")
-@commands.has_permissions(manage_messages=True)
+@commands.has_permissions(administrator=True)
 async def kick(ctx, user: discord.Member):
     await user.kick()
     kicked = discord.Embed(title=f"Готово!", description=f"**Выгнан(а)** {user.name}. **Выгнал:** {ctx.author.mention}")
     await ctx.send(embed=kicked)
 
 
-@bot.command(name="mute", brief="Запретить пользователю писать (настройте роль и канал)", usage="mute <member>")
-@commands.has_permissions(manage_messages=True)
+@bot.command(name="mute", brief="Запретить пользователю писать.", usage="mute <@user>")
+@commands.has_permissions(administrator=True)
 async def mute(ctx, member: discord.Member):
-    guild = ctx.guild
-    mutedRole = discord.utils.get(guild.roles, name="muted")
-    muted = discord.Embed(title=f"Готово!", description=f"{member.mention} был(а) замьючен(а)!")
-    UserRole = discord.utils.get(ctx.guild.roles, name="user")
-
-    if not mutedRole:
-        mutedRole = await guild.create_role(name="muted")
-
-        for channel in guild.channels:
-            await channel.set_permissions(mutedRole, speak=False, send_messages=False, read_message_history=True,
-                                          read_messages=False)
-
-    await member.remove_roles(UserRole)
+    role = discord.utils.get(ctx.guild.roles, name='muted')
+    await member.add_roles(role)
+    muted = discord.Embed(title="Готово!", description=f"{member.mention} был(а) замьючен(а)!")
     await ctx.send(embed=muted)
 
 
-@bot.command(name="unmute", brief="Разрешить пользователю писать", usage="unmute <member>")
-@commands.has_permissions(manage_messages=True)
+@bot.command(name="unmute", brief="Разрешить пользователю писать", usage="unmute <@user>")
+@commands.has_permissions(administrator=True)
 async def unmute(ctx, member: discord.Member):
     mutedRole = discord.utils.get(ctx.guild.roles, name="muted")
     await member.remove_roles(mutedRole)
-    UserRole = discord.utils.get(ctx.guild.roles, name="user")
-    await member.add_roles(UserRole)
     unmuted = discord.Embed(title=f"Готово!", description=f"{member.mention} был(а) размьючен(а)!")
     await ctx.send(embed=unmuted)
 
 
-@bot.command(name="give_role", brief="Выдать роль пользователю", usage="give_role <member>")
-@commands.has_permissions(manage_messages=True)
+@bot.command(name="give_role", brief="Выдать роль пользователю", usage="give_role <@user> <@role>")
+@commands.has_permissions(administrator=True)
 async def give_role(ctx, member: discord.Member, *, role: discord.Role):
     await member.add_roles(role)
     gived = discord.Embed(title=f"Готово!", description=f"Выдана роль {role} для {member.mention}.")
     await ctx.send(embed=gived)
 
 
-@bot.command(name="remove_role", brief="Снять роль с пользователя", usage="remove_role <member>")
-@commands.has_permissions(manage_messages=True)
+@bot.command(name="remove_role", brief="Снять роль с пользователя", usage="remove_role <@user> <@role>")
+@commands.has_permissions(administrator=True)
 async def remove_role(ctx, member: discord.Member, *, role: discord.Role):
     await member.remove_roles(role)
     removed = discord.Embed(title=f"Готово!", description=f"Снята роль {role} с {member.mention}.")
@@ -126,6 +114,7 @@ async def remove_role(ctx, member: discord.Member, *, role: discord.Role):
 
 
 @bot.command(name="clear", brief="Очистить чат от сообщений.", usage="clear <amount>")
+@commands.has_permissions(administrator=True)
 async def clear(ctx, amount: int):
     cleared = discord.Embed(title=f"Готово!", description=f"{ctx.author.mention} очистил(а) **{amount}** сообщений.")
     await ctx.channel.purge(limit=amount)
@@ -133,23 +122,23 @@ async def clear(ctx, amount: int):
 
 
 @bot.command(name="ban", brief="Забанить пользователя на сервере", usage="ban <@user>")
-@commands.has_permissions(manage_messages=True)
+@commands.has_permissions(administrator=True)
 async def ban(ctx, member: discord.Member):
     await member.ban()
-    banned = discord.Embed(title=f"Готово!", description=f"{member} был **забанен** на сервере.")
+    banned = discord.Embed(title=f"Готово!", description=f"{member} был **забанен(а)** на сервере.")
     await ctx.send(embed=banned)
 
 
 @bot.command(name="unban", brief="Разбанить пользователя на сервере", usage="ban <user_id>")
-@commands.has_permissions(manage_messages=True)
+@commands.has_permissions(administrator=True)
 async def unban(ctx, id: int):
     user = await bot.fetch_user(id)
     await ctx.guild.unban(user)
-    unbanned = discord.Embed(title=f"Готово!", description=f"{user} был **разбанен** на сервере.")
+    unbanned = discord.Embed(title=f"Готово!", description=f"{user} был **разбанен(а)** на сервере.")
     await ctx.send(embed=unbanned)
 
 
-@bot.command(name="profile", brief="Показать профиль пользователя", usage="give_role <member>")
+@bot.command(name="profile", brief="Показать профиль пользователя", usage="give_role <@user>")
 async def profile(ctx):
     member = ctx.author
     embed = discord.Embed(title="Профиль пользователя:")
@@ -161,7 +150,7 @@ async def profile(ctx):
 
 
 @bot.command(name="set_prefix", brief="Сменить префикс бота", usage="set_prefix <new_prefix>")
-@commands.has_permissions(manage_messages=True)
+@commands.has_permissions(administrator=True)
 async def set_prefix(ctx, *, prefixsetup=None):
     if prefixsetup is None:
         await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"Вы не указали префикс!"))
@@ -180,6 +169,7 @@ def restart_bot():
 
 
 @bot.command(name="restart", brief="Перезапустить бота", usage="restart")
+@commands.has_permissions(administrator=True)
 async def restart(ctx):
     embed1 = discord.Embed(title="Готово!", description=f"Перезагружаюсь...")
     await ctx.send(embed=embed1)
