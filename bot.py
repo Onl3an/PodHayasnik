@@ -14,7 +14,7 @@ TOKEN = config.token
 bot = commands.Bot(command_prefix=prefixintial, intents=intents)
 bot.remove_command("help")
 client = discord.Client(intents=intents)
-status = cycle(['Python', 'доту с онлином', 'feel so alone in bedroom', 'Ю Чэгён няшка <3', 'аниме!!!'])
+status = cycle(['Python', 'доту с онлином', 'Ю Чэгён няшка <3', 'аниме!!!', 'ожидание новой главы манги'])
 
 
 @bot.event
@@ -33,34 +33,30 @@ async def on_command_error(ctx, err):
     if isinstance(err, discord.ext.commands.errors.CommandNotFound):
         await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"Команда не найдена!"))
 
-    elif isinstance(err, discord.ext.commands.errors.BotMissingPermissions):
-        await ctx.send(
-            embed=discord.Embed(title=f"Ошибка!",
-                                description=f"У бота отсутствуют права: {' '.join(err.missing_perms)}\n"
-                                            f"Выдайте их ему для полного функционирования бота"))
-
     elif isinstance(err, discord.ext.commands.errors.MissingPermissions):
         await ctx.send(embed=discord.Embed(title=f"Ошибка!",
-                                                  description=f"У вас недостаточно прав для запуска этой команды!"))
+                                           description=f"У вас недостаточно прав для запуска этой команды!"))
 
     elif isinstance(err, discord.ext.commands.errors.UserInputError):
         await ctx.send(embed=discord.Embed(title=f"Ошибка!",
-                                                  description=f"Правильное использование команды {ctx.command}({ctx.command.brief}): `{ctx.command.usage}`"))
+                                           description=f"Правильное использование команды {ctx.command}"
+                                                       f"({ctx.command.brief}): `{ctx.command.usage}`"))
 
     elif isinstance(err, discord.ext.commands.errors.BadArgument):
         await ctx.send(embed=discord.Embed(title=f"Ошибка!",
-                                                  description=f"Правильное использование команды {ctx.command}({ctx.command.brief}): `{ctx.command.usage}`"))
+                                           description=f"Правильное использование команды {ctx.command}"
+                                                       f"({ctx.command.brief}): `{ctx.command.usage}`"))
 
     elif isinstance(err, discord.ext.commands.CommandOnCooldown):
         await ctx.send(embed=discord.Embed(title=f"Ошибка!",
-                                                  description=f"У вас еще не прошел кулдаун на команду {ctx.command}!\n"
-                                                              f"Подождите еще {err.retry_after:.2f}"))
+                                           description=f"У вас еще не прошел кулдаун на команду {ctx.command}!\n"
+                                                       f"Подождите еще {err.retry_after:.2f}"))
 
     else:
         await ctx.send(embed=discord.Embed(title=f"Ошибка!",
-                                                  description=f"Произошла неизвестная ошибка: `{err}`\n"
-                                                              f"Пожалуйста, свяжитесь с разработчиками для "
-                                                              f"исправления этой ошибки"))
+                                           description=f"Произошла неизвестная ошибка: `{err}`\n"
+                                                       f"Пожалуйста, свяжитесь с разработчиками для "
+                                                       f"исправления этой ошибки"))
 
 
 @bot.command(name="roll", brief="Выдает случайное число в диапазоне", usage="roll <first_num> <second_num>")
@@ -71,16 +67,16 @@ async def roll(ctx, a: int, b: int):
 
 @bot.command(name="help", brief="Показать список команд", usage="help")
 async def help(ctx):
-    help = discord.Embed(title=f"Список команд:", description=config.list_of_commands)
-    await ctx.send(embed=help)
+    helped = discord.Embed(title=f"Список команд:", description=config.list_of_commands)
+    await ctx.send(embed=helped)
 
 
 @bot.command(name="kick", brief="Выгнать пользователя с сервера", usage="kick <@user>")
 @commands.has_permissions(manage_messages=True)
 async def kick(ctx, user: discord.Member):
     await user.kick()
-    kick = discord.Embed(title=f"Готово!", description=f"**Выгнан(а)** {user.name}. **Выгнал:** {ctx.author.mention}")
-    await ctx.send(embed=kick)
+    kicked = discord.Embed(title=f"Готово!", description=f"**Выгнан(а)** {user.name}. **Выгнал:** {ctx.author.mention}")
+    await ctx.send(embed=kicked)
 
 
 @bot.command(name="mute", brief="Запретить пользователю писать (настройте роль и канал)", usage="mute <member>")
@@ -174,7 +170,8 @@ async def set_prefix(ctx, *, prefixsetup=None):
         openPrefixFile = open("prefix.txt", "w")
         openPrefixFile.write(prefixsetup)
         await ctx.send(embed=discord.Embed(title="Готово!", description=f"Префикс изменён на > ``{prefixsetup}`` "
-                                                                        f"< Что бы применить видите {prefixintial}restart"))
+                                                                        f"< Что бы применить видите "
+                                                                        f"{prefixintial}restart"))
 
 
 def restart_bot():
