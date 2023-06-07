@@ -69,7 +69,18 @@ async def roll(ctx, a: int, b: int):
 
 @bot.command(name="help", brief="Показать список команд", usage="help")
 async def help(ctx):
-    helped = discord.Embed(title=f"Список команд:", description=config.list_of_commands, color=0x008000)
+    my_list = ['``roll`` - выдает **случайное число**',
+               '``profile`` - **информация** о пользователе',
+               '``kick`` - **кикает** пользователя',
+               '``mute/unmute`` - **дать/снять** мут пользователю',
+               '``give_role/remove_role`` - **выдает/убирает** с пользователя роль',
+               '``clear`` - **удаляет** сообщения',
+               '``ban/unban`` - **забанить/разбанить** пользователя.(unban **по айди**)',
+               '``prefix`` - **сменить** префикс',
+               '``restart`` - **перезагрузить** бота.']
+
+    list_of_commands = (",\n".join(map(str, my_list)))
+    helped = discord.Embed(title=f"Список команд:", description=list_of_commands, color=0x58b9ff)
     await ctx.send(embed=helped)
 
 
@@ -143,7 +154,7 @@ async def unban(ctx, id: int):
 @bot.command(name="profile", brief="Показать профиль пользователя", usage="give_role <@user>")
 async def profile(ctx):
     member = ctx.author
-    embed = discord.Embed(title="Профиль пользователя:", color=0x008000)
+    embed = discord.Embed(title="Профиль пользователя:", color=0x58b9ff)
     embed.add_field(name="Имя", value=member.name, inline=True)
     embed.add_field(name="ID", value=member.id, inline=True)
     embed.add_field(name="Статус", value=member.status, inline=True)
@@ -151,18 +162,18 @@ async def profile(ctx):
     await ctx.send(embed=embed)
 
 
-@bot.command(name="set_prefix", brief="Сменить префикс бота", usage="set_prefix <new_prefix>")
+@bot.command(name="prefix", brief="Сменить префикс бота", usage="prefix <new_prefix>")
 @commands.has_permissions(administrator=True)
-async def set_prefix(ctx, *, prefixsetup=None):
+async def prefix(ctx, *, prefixsetup=None):
     if prefixsetup is None:
-        await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"Вы не указали префикс!", color=0x008000))
+        await ctx.send(embed=discord.Embed(title=f"Ошибка!", description=f"Вы не указали префикс!", color=0xFF0000))
 
     else:
         openPrefixFile = open("prefix.txt", "w")
         openPrefixFile.write(prefixsetup)
         await ctx.send(embed=discord.Embed(title="Готово!", description=f"Префикс изменён на > ``{prefixsetup}`` "
                                                                         f"< Что бы применить видите "
-                                                                        f"{prefixintial}restart", color=0x008000))
+                                                                        f"{prefixintial}restart", color=0x58b9ff))
 
 
 def restart_bot():
@@ -173,8 +184,8 @@ def restart_bot():
 @bot.command(name="restart", brief="Перезапустить бота", usage="restart")
 @commands.has_permissions(administrator=True)
 async def restart(ctx):
-    embed1 = discord.Embed(title="Готово!", description=f"Перезагружаюсь...", color=0x008000)
-    await ctx.send(embed=embed1)
+    restarted = discord.Embed(title="Готово!", description=f"Перезагружаюсь...", color=0x58b9ff)
+    await ctx.send(embed=restarted)
     restart_bot()
 
 
